@@ -41,11 +41,11 @@ Scripts: `npm run build`, `npm run lint`, `npm run type:check`, `npm test`, `npm
 
 ### App shell and dashboard
 
-- Dark sidebar with the three feature areas (Inventory Directory, Product Wizard, Test Suite), a top bar with global
+- Dark sidebar with the three feature areas (Inventory Directory, Product Wizard, Test StockHub), a top bar with global
   search (press Cmd/Ctrl + K) and a mobile navigation drawer.
 - `/products` opens with summary cards, a stock-by-category chart, a stock status donut, low stock products and a recent
   activity feed. All figures are computed from the API data and update instantly when a product is edited or deleted.
-- `/testing` documents the automated test suites and how to run them.
+- `/testing` documents the automated Test StockHubs and how to run them.
 
 ### Inventory directory (`/products`)
 

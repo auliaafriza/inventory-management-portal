@@ -22,7 +22,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     href: "/testing",
-    label: "Test Suite",
+    label: "Test StockHub",
     icon: FlaskIcon,
     match: (pathname) => pathname.startsWith("/testing"),
   },

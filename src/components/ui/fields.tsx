@@ -7,6 +7,7 @@ import {
   type TextareaHTMLAttributes,
 } from "react"
 import { cn } from "@/lib/utils/cn"
+import { ChevronDownIcon } from "./icons"
 
 interface FieldShellProps {
   id: string
@@ -35,6 +36,17 @@ export function FieldShell({ id, label, error, hint, required, className, childr
           {hint}
         </p>
       ) : null}
+    </div>
+  )
+}
+
+export const selectClass = "appearance-none pr-10"
+
+export function SelectChevron({ children, className }: Readonly<{ children: ReactNode; className?: string }>) {
+  return (
+    <div className={cn("relative", className)}>
+      {children}
+      <ChevronDownIcon className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
     </div>
   )
 }
@@ -111,18 +123,20 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(funct
   const id = useId()
   return (
     <FieldShell id={id} label={label} error={error} hint={hint} required={required} className={fieldClassName}>
-      <select
-        ref={ref}
-        id={id}
-        aria-required={required}
-        aria-invalid={Boolean(error)}
-        aria-describedby={describedBy(id, error, hint)}
-        className={cn(controlClass, controlState(error), "pr-8", className)}
-        {...props}
-      >
-        {placeholder !== undefined ? <option value="">{placeholder}</option> : null}
-        {children}
-      </select>
+      <SelectChevron>
+        <select
+          ref={ref}
+          id={id}
+          aria-required={required}
+          aria-invalid={Boolean(error)}
+          aria-describedby={describedBy(id, error, hint)}
+          className={cn(controlClass, controlState(error), selectClass, className)}
+          {...props}
+        >
+          {placeholder !== undefined ? <option value="">{placeholder}</option> : null}
+          {children}
+        </select>
+      </SelectChevron>
     </FieldShell>
   )
 })
