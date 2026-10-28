@@ -24,17 +24,7 @@ function Panel({
 
 export function LowStockPanel({ items, loading }: Readonly<{ items: InventoryItem[]; loading: boolean }>) {
   return (
-    <Panel
-      title="Low Stock Products"
-      action={
-        <Link
-          href="/products?sort=stock_asc"
-          className="text-sm font-medium text-brand-700 underline-offset-2 hover:underline"
-        >
-          View all
-        </Link>
-      }
-    >
+    <Panel title="Low Stock Products">
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }, (_, index) => (

@@ -51,8 +51,7 @@ export function ProductEditDialog({ product, onClose, onSubmit }: Readonly<Produ
 
   const submit = handleSubmit((values) => {
     if (!product) return
-    const patch = buildPatch(product, values)
-    if (Object.keys(patch).length > 0) onSubmit(product, patch)
+    onSubmit(product, buildPatch(product, values))
     onClose()
   })
 
@@ -77,6 +76,8 @@ export function ProductEditDialog({ product, onClose, onSubmit }: Readonly<Produ
           <TextField
             label="Stock"
             type="number"
+            step="1"
+            min="0"
             required
             error={errors.stock?.message}
             {...register("stock", { valueAsNumber: true })}

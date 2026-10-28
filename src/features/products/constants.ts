@@ -39,3 +39,9 @@ export const WIZARD_STEPS = [
 
 export const REVIEW_STEP_INDEX = WIZARD_STEPS.length - 1
 export const DRAFT_STORAGE_KEY = "inventory-portal:product-draft"
+
+
+export const StatusOperations = {
+   pending: "pending",
+   failed: "failed"
+}

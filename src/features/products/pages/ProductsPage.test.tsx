@@ -255,4 +255,20 @@ describe("ProductsPage", () => {
     expect(within(screen.getByRole("table")).getByText("$25.00")).toBeInTheDocument()
     expect(await screen.findByText('"Essence Mascara" updated', undefined, { timeout: 3000 })).toBeInTheDocument()
   })
+
+  it("tells the user when an edit has no changes", async () => {
+    const user = userEvent.setup({ delay: null })
+    const { store } = renderPage()
+    await screen.findByRole("table")
+
+    await user.click(screen.getByRole("button", { name: "Edit Essence Mascara" }))
+    const dialog = await screen.findByRole("dialog", { name: "Edit product" })
+    await user.click(within(dialog).getByRole("button", { name: "Save changes" }))
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(store.getState().toasts.items[0]).toMatchObject({
+      kind: "info",
+      message: 'No changes to save for "Essence Mascara"',
+    })
+  })
 })

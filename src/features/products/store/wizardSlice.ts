@@ -63,7 +63,7 @@ const wizardSlice = createSlice({
         state.lastSavedAt = action.payload.savedAt
       },
       prepare(values: WizardDraftValues, step: number) {
-        return { payload: { values, step, savedAt: new Date().toISOString() } }
+        return { payload: { values: structuredClone(values), step, savedAt: new Date().toISOString() } }
       },
     },
     draftResumed(state) {

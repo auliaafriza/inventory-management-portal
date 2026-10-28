@@ -22,7 +22,7 @@ export function ProductPreview(props: Readonly<ProductPreviewProps>) {
     <section aria-label="Product preview" className="overflow-hidden rounded-xl bg-slate-50 ring-1 ring-slate-200">
       <div className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-3">
         <h3 className="text-base font-semibold text-slate-900">Product preview</h3>
-        <span className="text-xs text-slate-500">How it will appear in your inventory</span>
+        <span className="text-xs text-slate-500">Preview your product</span>
       </div>
       <div className="flex flex-col gap-5 p-5 sm:flex-row">
         <Image

@@ -118,7 +118,7 @@ export function ProductWizardPage() {
 
   const handleResume = () => {
     if (!savedDraft) return
-    reset({ ...DEFAULT_VALUES, ...savedDraft.values } as ProductWizardValues)
+    reset({ ...DEFAULT_VALUES, ...structuredClone(savedDraft.values) } as ProductWizardValues)
     setReached(savedDraft.step)
     dispatch(draftResumed())
   }

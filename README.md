@@ -1,4 +1,4 @@
-# StockHub: Product & Inventory Management Portal
+# IMS: Product & Inventory Management Portal
 
 A responsive inventory portal built with Next.js (App Router), React 19 and TypeScript in strict mode. It reads and
 writes products through the public [DummyJSON](https://dummyjson.com) API and includes a searchable, filterable product
@@ -9,7 +9,7 @@ directory and a multi-step product creation wizard.
 
 ## Preview
 
-![StockHub walkthrough: search, filters, view toggle, add product wizard, preview and list refetch](docs/demo.gif)
+![IMS walkthrough: search, filters, view toggle, add product wizard, preview and list refetch](docs/demo.gif)
 
 | Dashboard and inventory table                   | Search and category filter (URL synced)                         |
 | ----------------------------------------------- | --------------------------------------------------------------- |
@@ -18,10 +18,6 @@ directory and a multi-step product creation wizard.
 | Card view                                       | Empty state                                         |
 | ----------------------------------------------- | --------------------------------------------------- |
 | ![Card view](docs/screenshots/03-card-view.png) | ![Empty state](docs/screenshots/04-empty-state.png) |
-
-| Optimistic delete in flight                                              | Rollback with Retry toast                                            |
-| ------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| ![Optimistic delete](docs/screenshots/04b-optimistic-delete-pending.png) | ![Rollback and retry](docs/screenshots/04c-rollback-retry-toast.png) |
 
 | Wizard validation                                               | Pricing and SKU variations                                       |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
@@ -39,9 +35,9 @@ directory and a multi-step product creation wizard.
 | -------------------------------------------------------- | ------------------------------------------------------------ |
 | ![New product](docs/screenshots/11-list-new-product.png) | ![Draft prompt](docs/screenshots/12-draft-resume-prompt.png) |
 
-| Test StockHub page                                      | Mobile list and filter drawer                                                                                  |
+| Test IMS page                                      | Mobile list and filter drawer                                                                                  |
 | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| ![Test StockHub](docs/screenshots/13-test-stockhub.png) | ![Mobile](docs/screenshots/14-mobile-list.png) ![Mobile filters](docs/screenshots/15-mobile-filter-drawer.png) |
+| ![Test IMS](docs/screenshots/13-test-IMS.png) | ![Mobile](docs/screenshots/14-mobile-list.png) ![Mobile filters](docs/screenshots/15-mobile-filter-drawer.png) |
 
 ## Stack
 
@@ -72,7 +68,7 @@ Open http://localhost:3000. The app redirects to `/products`.
 | ----------------------- | --------------------------------------------------------- |
 | `npm install`           | Installs dependencies (`.npmrc` sets `legacy-peer-deps`)  |
 | `npm run dev`           | Starts the development server on port 3000                |
-| `npm run test`          | Runs the whole ViTest StockHub once                          |
+| `npm run test`          | Runs the whole ViTest IMS once                          |
 | `npm run test:coverage` | Runs the suite with coverage and enforces the 80% minimum |
 | `npm run build`         | Creates the production build                              |
 | `npm run start`         | Serves the production build                               |
@@ -94,11 +90,11 @@ Set `NEXT_PUBLIC_FAILURE_RATE=1` to watch every delete or update roll back, or `
 
 ### App shell and dashboard
 
-- Dark sidebar with the three feature areas (Inventory Directory, Product Wizard, Test StockHub), a top bar with global
+- Dark sidebar with the three feature areas (Inventory Directory, Product Wizard, Test IMS), a top bar with global
   search (press Cmd/Ctrl + K) and a mobile navigation drawer.
 - `/products` opens with summary cards, a stock-by-category chart, a stock status donut, low stock products and a recent
   activity feed. All figures are computed from the API data and update instantly when a product is edited or deleted.
-- `/testing` documents the automated Test StockHubs and how to run them.
+- `/testing` documents the automated Test IMSs and how to run them.
 
 ### Inventory directory (`/products`)
 

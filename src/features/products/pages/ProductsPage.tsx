@@ -26,6 +26,7 @@ import { useDeleteProductMutation, useUpdateProductMutation } from "../services/
 import { useGetCategoriesQuery, useGetProductsQuery } from "../services/productsApi"
 import { viewChanged } from "../store/filtersSlice"
 import { selectOperations } from "../store/optimisticSlice"
+import { toastAdded } from "../store/toastSlice"
 import type { Product, ProductCategory, ProductPatch } from "../types"
 import { buildProductsCsv, downloadCsv } from "../utils/exportCsv"
 import { hasActiveFilters } from "../utils/filtersUrl"
@@ -56,9 +57,13 @@ export function ProductsPage() {
 
   const handleUpdate = useCallback(
     (product: Product, patch: ProductPatch) => {
+      if (Object.keys(patch).length === 0) {
+        dispatch(toastAdded({ kind: "info", message: `No changes to save for "${product.title}"` }))
+        return
+      }
       void updateProduct({ id: product.id, title: patch.title ?? product.title, patch })
     },
-    [updateProduct],
+    [dispatch, updateProduct],
   )
 
   const total = currentData?.total ?? 0
@@ -132,7 +137,7 @@ export function ProductsPage() {
           Product &amp; Inventory Management Portal
         </h1>
         <p className="mt-1 text-sm text-slate-500">
-          Manage your products, track inventory, and keep your business running smoothly.
+          Manage your products and track inventory.
         </p>
       </div>
 

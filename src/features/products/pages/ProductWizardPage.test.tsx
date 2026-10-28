@@ -285,4 +285,26 @@ describe("ProductWizardPage", () => {
     expect(screen.getByRole("button", { name: "Create product" })).toBeDisabled()
     expect(submissions).toBe(0)
   })
+
+  it("keeps variation fields editable after a failed step check and an autosave", async () => {
+    const user = userEvent.setup({ delay: null })
+    renderWithProviders(<ProductWizardPage />)
+
+    await fillBasicInfo(user)
+    await user.click(screen.getByRole("button", { name: "Continue" }))
+    await user.type(await screen.findByLabelText(/base price/i), "10")
+    await user.type(screen.getByLabelText(/stock quantity/i), "1")
+    await user.click(screen.getByRole("button", { name: /add variation/i }))
+    await user.click(screen.getByRole("button", { name: "Continue" }))
+    expect(await screen.findByText("Color is required")).toBeInTheDocument()
+
+    await new Promise((resolve) => setTimeout(resolve, 600))
+    await user.type(screen.getByLabelText("Color"), "Red")
+    await user.type(screen.getByLabelText("Size"), "M")
+    await user.type(screen.getByLabelText("SKU code"), "SKU-RED-1001")
+
+    await waitFor(() => expect(screen.queryByText(/is required/)).not.toBeInTheDocument())
+    await user.click(screen.getByRole("button", { name: "Continue" }))
+    expect(await screen.findByRole("heading", { name: "Shipping", level: 2 })).toBeInTheDocument()
+  })
 })

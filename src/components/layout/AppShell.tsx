@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react"
 import { usePathname } from "next/navigation"
+import { useResetWizardOnLeave } from "@/features/products/hooks/useResetWizardOnLeave"
 import { MobileSidebar } from "./MobileSidebar"
 import { SidebarContent } from "./SidebarContent"
 import { TopBar } from "./TopBar"
@@ -9,6 +10,7 @@ import { TopBar } from "./TopBar"
 export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+  useResetWizardOnLeave(pathname)
 
   useEffect(() => {
     setMenuOpen(false)

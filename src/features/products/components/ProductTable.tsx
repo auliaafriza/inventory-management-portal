@@ -5,6 +5,7 @@ import type { OptimisticOperation } from "../store/optimisticSlice"
 import type { Product } from "../types"
 import { formatCategoryName } from "../utils/inventoryStats"
 import { NewBadge, PriceTag, ProductActions, StockBadge, StockCount } from "./ProductBits"
+import { StatusOperations } from "../constants"
 
 interface ProductListProps {
   products: Product[]
@@ -14,8 +15,8 @@ interface ProductListProps {
 }
 
 function RowStatus({ operation }: Readonly<{ operation?: OptimisticOperation }>) {
-  if (operation?.status === "pending") return <span className="text-xs text-brand-600">Saving…</span>
-  if (operation?.status === "failed") return <span className="text-xs text-red-600">Failed, changes reverted</span>
+  if (operation?.status === StatusOperations.pending) return <span className="text-xs text-brand-600">Saving…</span>
+  if (operation?.status === StatusOperations.failed) return <span className="text-xs text-red-600">Failed, changes reverted</span>
   return null
 }
 
@@ -68,8 +69,8 @@ export function ProductTable({ products, operations, onEdit, onDelete }: Readonl
                   key={product.id}
                   className={cn(
                     "transition-colors hover:bg-slate-50",
-                    operation?.status === "pending" && "opacity-60",
-                    operation?.status === "failed" && "bg-red-50/60",
+                    operation?.status === StatusOperations.pending && "opacity-60",
+                    operation?.status === StatusOperations.failed && "bg-red-50/60",
                   )}
                 >
                   <td className={cellClass}>
@@ -117,7 +118,7 @@ export function ProductTable({ products, operations, onEdit, onDelete }: Readonl
                     <div className="flex justify-end">
                       <ProductActions
                         product={product}
-                        disabled={operation?.status === "pending"}
+                        disabled={operation?.status === StatusOperations.pending}
                         onEdit={onEdit}
                         onDelete={onDelete}
                       />
@@ -143,8 +144,8 @@ export function ProductCards({ products, operations, onEdit, onDelete }: Readonl
             key={product.id}
             className={cn(
               "flex flex-col overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 transition-shadow hover:shadow-md",
-              operation?.status === "pending" && "opacity-60",
-              operation?.status === "failed" && "ring-red-300",
+              operation?.status === StatusOperations.pending && "opacity-60",
+              operation?.status === StatusOperations.failed && "ring-red-300",
             )}
           >
             <Link href={`/products/${product.id}`} className="block bg-slate-100">
@@ -181,7 +182,7 @@ export function ProductCards({ products, operations, onEdit, onDelete }: Readonl
                 </span>
                 <ProductActions
                   product={product}
-                  disabled={operation?.status === "pending"}
+                  disabled={operation?.status === StatusOperations.pending}
                   onEdit={onEdit}
                   onDelete={onDelete}
                 />

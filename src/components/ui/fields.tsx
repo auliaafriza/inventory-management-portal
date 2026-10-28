@@ -1,7 +1,9 @@
 import {
   forwardRef,
   useId,
+  type ClipboardEvent,
   type InputHTMLAttributes,
+  type KeyboardEvent,
   type ReactNode,
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
@@ -71,9 +73,32 @@ interface BaseFieldProps {
   fieldClassName?: string
 }
 
+const BLOCKED_NUMBER_KEYS = new Set(["e", "E", "+", "-"])
+const DECIMAL_KEYS = new Set([".", ","])
+
+function isWholeNumberField(step: InputHTMLAttributes<HTMLInputElement>["step"]): boolean {
+  return step === 1 || step === "1"
+}
+
 export const TextField = forwardRef<HTMLInputElement, BaseFieldProps & InputHTMLAttributes<HTMLInputElement>>(
-  function TextField({ label, error, hint, fieldClassName, className, required, ...props }, ref) {
+  function TextField({ label, error, hint, fieldClassName, className, required, onKeyDown, onPaste, ...props }, ref) {
     const id = useId()
+    const isNumber = props.type === "number"
+    const wholeOnly = isNumber && isWholeNumberField(props.step)
+
+    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+      onKeyDown?.(event)
+      if (!isNumber || event.defaultPrevented || event.ctrlKey || event.metaKey) return
+      if (BLOCKED_NUMBER_KEYS.has(event.key) || (wholeOnly && DECIMAL_KEYS.has(event.key))) event.preventDefault()
+    }
+
+    const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
+      onPaste?.(event)
+      if (!isNumber || event.defaultPrevented) return
+      const pattern = wholeOnly ? /^\d+$/ : /^\d*[.,]?\d+$/
+      if (!pattern.test(event.clipboardData.getData("text").trim())) event.preventDefault()
+    }
+
     return (
       <FieldShell id={id} label={label} error={error} hint={hint} required={required} className={fieldClassName}>
         <input
@@ -84,6 +109,9 @@ export const TextField = forwardRef<HTMLInputElement, BaseFieldProps & InputHTML
           aria-invalid={Boolean(error)}
           aria-describedby={describedBy(id, error, hint)}
           className={cn(controlClass, controlState(error), className)}
+          inputMode={isNumber ? (wholeOnly ? "numeric" : "decimal") : props.inputMode}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           {...props}
         />
       </FieldShell>

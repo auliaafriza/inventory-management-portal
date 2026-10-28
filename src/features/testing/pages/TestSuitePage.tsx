@@ -58,7 +58,7 @@ export function TestSuitePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Test StockHub</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Test IMS</h1>
         <p className="mt-1 text-sm text-slate-500">
           Automated unit and integration tests run with Vitest, React Testing Library and Mock Service Worker.
         </p>
