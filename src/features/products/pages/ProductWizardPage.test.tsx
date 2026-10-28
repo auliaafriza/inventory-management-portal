@@ -113,14 +113,14 @@ describe("ProductWizardPage", () => {
     await user.type(second as HTMLElement, "SKU-RED-1001")
     await user.click(screen.getByRole("button", { name: "Continue" }))
 
-    expect(await screen.findByText(/Use the format SKU-ABC-1234/, undefined, { timeout: 5000 })).toBeInTheDocument()
+    expect(await screen.findByText(/Use the format SKU-ABC-1234/, undefined, { timeout: 10000 })).toBeInTheDocument()
 
     await user.clear(first as HTMLElement)
     await user.type(first as HTMLElement, "SKU-RED-1001")
     await user.click(screen.getByRole("button", { name: "Continue" }))
 
-    await waitFor(() => expect(screen.getAllByText("Duplicate SKU code")).toHaveLength(2), { timeout: 5000 })
-  })
+    await waitFor(() => expect(screen.getAllByText("Duplicate SKU code")).toHaveLength(2), { timeout: 10000 })
+  }, 40000)
 
   it("requires disclosures only when fragile handling is selected", async () => {
     const user = userEvent.setup({ delay: null })

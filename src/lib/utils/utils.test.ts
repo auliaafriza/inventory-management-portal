@@ -140,10 +140,10 @@ describe("storage", () => {
   })
 
   it("swallows storage errors", () => {
-    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+    vi.spyOn(window.localStorage, "setItem").mockImplementation(() => {
       throw new Error("quota")
     })
-    vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {
+    vi.spyOn(window.localStorage, "removeItem").mockImplementation(() => {
       throw new Error("denied")
     })
     expect(writeStorage("k", 1)).toBe(false)
