@@ -4,8 +4,8 @@ A responsive inventory portal built with Next.js (App Router), React 19 and Type
 writes products through the public [DummyJSON](https://dummyjson.com) API and includes a searchable, filterable product
 directory and a multi-step product creation wizard.
 
-- Live demo: _add the Vercel URL after deploying_
-- Repository: _add the public GitHub URL_
+- Live demo: (https://inventory-management-portal-silk.vercel.app/products)
+- Repository: (https://github.com/auliaafriza/inventory-management-portal)
 
 ## Preview
 
@@ -156,13 +156,8 @@ npm run test:coverage
 
 ## Deploying to Vercel
 
-1. Push the repository to GitHub.
-2. Import it in Vercel (framework preset: Next.js, no extra settings needed).
-3. Optionally set `NEXT_PUBLIC_API_BASE_URL` and `NEXT_PUBLIC_FAILURE_RATE`.
-
-DummyJSON does not persist writes. Because refetching would bring deleted items back, committed deletions and edits
-are kept in Redux and re-applied to every list the app fetches during the session. The cache is invalidated only after a
-product is created, so the list and summary refetch and include it.
+URL VERCEL : https://inventory-management-portal-silk.vercel.app/products
+ENV all setup in vercel
 
 ## Technical rationale
 
