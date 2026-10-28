@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, type FormEvent } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { BellIcon, ChevronDownIcon, MenuIcon, SearchIcon } from "@/components/ui/icons"
 import { formatRelativeTime } from "@/lib/utils/format"
 import { useAppSelector } from "@/store/hooks"
@@ -72,10 +72,14 @@ function NotificationsMenu() {
 
 export function TopBar({ onOpenMenu }: Readonly<{ onOpenMenu: () => void }>) {
   const router = useRouter()
+  const pathname = usePathname()
+  const showSearch = pathname === "/products"
   const inputRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState("")
 
   useEffect(() => {
+    if (!showSearch) return
+
     const handleKey = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault()
@@ -84,7 +88,7 @@ export function TopBar({ onOpenMenu }: Readonly<{ onOpenMenu: () => void }>) {
     }
     document.addEventListener("keydown", handleKey)
     return () => document.removeEventListener("keydown", handleKey)
-  }, [])
+  }, [showSearch])
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -105,21 +109,23 @@ export function TopBar({ onOpenMenu }: Readonly<{ onOpenMenu: () => void }>) {
         <MenuIcon />
       </button>
 
-      <form onSubmit={handleSubmit} role="search" className="relative max-w-xl flex-1">
-        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-400" />
-        <input
-          ref={inputRef}
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search products, orders, or anything…"
-          aria-label="Global search"
-          className="block h-10 w-full rounded-lg border-0 bg-slate-100 pl-10 pr-14 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-600 [&::-webkit-search-cancel-button]:appearance-none"
-        />
-        <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded bg-white px-1.5 py-0.5 text-xs text-slate-400 ring-1 ring-slate-200 sm:block">
-          ⌘ K
-        </kbd>
-      </form>
+      {showSearch ? (
+        <form onSubmit={handleSubmit} role="search" className="relative max-w-xl flex-1">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-400" />
+          <input
+            ref={inputRef}
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search products, orders, or anything…"
+            aria-label="Global search"
+            className="block h-10 w-full rounded-lg border-0 bg-slate-100 pl-10 pr-14 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-600 [&::-webkit-search-cancel-button]:appearance-none"
+          />
+          <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded bg-white px-1.5 py-0.5 text-xs text-slate-400 ring-1 ring-slate-200 sm:block">
+            ⌘ K
+          </kbd>
+        </form>
+      ) : null}
 
       <div className="ml-auto flex items-center gap-2 sm:gap-4">
         <NotificationsMenu />
