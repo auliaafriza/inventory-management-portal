@@ -15,6 +15,7 @@ import { WizardStepper } from "../components/wizard/WizardStepper"
 import { REVIEW_STEP_INDEX, WIZARD_STEPS } from "../constants"
 import { getStepForField, productWizardSchema, STEP_FIELDS, type ProductWizardValues } from "../schemas/productSchemas"
 import { useCreateProductMutation } from "../services/productMutations"
+import { activityLogged } from "../store/activitySlice"
 import { toastAdded } from "../store/toastSlice"
 import {
   draftCleared,
@@ -139,6 +140,7 @@ export function ProductWizardPage() {
         setCreated(result)
         dispatch(draftCleared())
         dispatch(toastAdded({ kind: "success", message: `"${values.title}" created` }))
+        dispatch(activityLogged({ tone: "success", title: "Product added", detail: values.title }))
       } catch {
         dispatch(toastAdded({ kind: "error", message: "Could not create the product. Please try again." }))
       }

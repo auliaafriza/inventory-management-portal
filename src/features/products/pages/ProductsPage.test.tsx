@@ -58,6 +58,43 @@ describe("ProductsPage", () => {
     expect(screen.getByText("Showing 1–4 of 4 products")).toBeInTheDocument()
   })
 
+  it("summarises inventory from the API", async () => {
+    renderPage()
+    const summary = await screen.findByLabelText("Inventory summary")
+
+    await waitFor(() => expect(within(summary).getByText("4")).toBeInTheDocument())
+    expect(within(summary).getByText("$45,569")).toBeInTheDocument()
+    expect(within(summary).getByText("Total Products")).toBeInTheDocument()
+    expect(within(summary).getByText("1 out of stock")).toBeInTheDocument()
+    expect(screen.getByRole("img", { name: "In Stock: 2, Low Stock: 1, Out of Stock: 1" })).toBeInTheDocument()
+  })
+
+  it("lists low stock products and recent activity", async () => {
+    vi.stubEnv("NEXT_PUBLIC_FAILURE_RATE", "0")
+    const user = userEvent.setup({ delay: null })
+    renderPage()
+    const insights = await screen.findByRole("complementary", { name: "Insights" })
+
+    expect(await within(insights).findByText("Samsung Galaxy S8")).toBeInTheDocument()
+    expect(within(insights).getByText("Out of stock")).toBeInTheDocument()
+    expect(within(insights).getByText(/Nothing yet/)).toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "Delete Red Lipstick" }))
+    expect(await within(insights).findByText("Product deleted", undefined, { timeout: 3000 })).toBeInTheDocument()
+  })
+
+  it("updates the summary as soon as a product is deleted", async () => {
+    vi.stubEnv("NEXT_PUBLIC_FAILURE_RATE", "0")
+    const user = userEvent.setup({ delay: null })
+    renderPage()
+    const summary = await screen.findByLabelText("Inventory summary")
+    await waitFor(() => expect(within(summary).getByText("4")).toBeInTheDocument())
+
+    await user.click(screen.getByRole("button", { name: "Delete Red Lipstick" }))
+
+    expect(within(summary).getByText("3")).toBeInTheDocument()
+  })
+
   it("toggles to the card layout", async () => {
     const user = userEvent.setup({ delay: null })
     renderPage()
@@ -138,9 +175,9 @@ describe("ProductsPage", () => {
     const { store } = renderPage()
     await screen.findByRole("table")
 
-    const sidebar = screen.getByRole("complementary", { name: "Filters" })
-    await waitFor(() => expect(within(sidebar).getByRole("option", { name: "Beauty" })).toBeInTheDocument())
-    await user.selectOptions(within(sidebar).getByLabelText("Category"), "beauty")
+    const filtersGroup = screen.getByRole("group", { name: "Product filters" })
+    await waitFor(() => expect(within(filtersGroup).getByRole("option", { name: "Beauty" })).toBeInTheDocument())
+    await user.selectOptions(within(filtersGroup).getByLabelText("Category"), "beauty")
 
     await waitFor(() => expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(3))
     expect(store.getState().filters.category).toBe("beauty")

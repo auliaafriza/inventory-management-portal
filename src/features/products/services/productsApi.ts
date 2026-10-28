@@ -2,6 +2,7 @@ import { createApi } from "@reduxjs/toolkit/query/react"
 import { baseQuery } from "@/api/baseQuery"
 import type { OptimisticState } from "../store/optimisticSlice"
 import type { Product, ProductCategory, ProductFilters, ProductsResponse } from "../types"
+import { applyInventoryOverrides, type InventoryItem } from "../utils/inventoryStats"
 import { paginateLocally, resolveProductsRequest } from "../utils/productsRequest"
 
 interface OverridesState {
@@ -23,6 +24,8 @@ export function applyOverrides(response: ProductsResponse, overrides: Optimistic
   }
 }
 
+const SUMMARY_FIELDS = "title,sku,category,price,stock,discountPercentage,thumbnail"
+
 export const productsApi = createApi({
   reducerPath: "productsApi",
   baseQuery,
@@ -39,6 +42,17 @@ export const productsApi = createApi({
         const { optimistic } = api.getState() as OverridesState
         return { data: applyOverrides(data, optimistic) }
       },
+    }),
+    getInventorySummary: builder.query<InventoryItem[], void>({
+      async queryFn(_arg, api, _extraOptions, fetchWithBQ) {
+        const result = await fetchWithBQ(`/products?limit=0&select=${SUMMARY_FIELDS}`)
+        if (result.error) return { error: result.error }
+
+        const { optimistic } = api.getState() as OverridesState
+        const { products } = result.data as { products: InventoryItem[] }
+        return { data: applyInventoryOverrides(products, optimistic) }
+      },
+      keepUnusedDataFor: 300,
     }),
     getCategories: builder.query<ProductCategory[], void>({
       query: () => "/products/categories",
@@ -57,4 +71,5 @@ export const productsApi = createApi({
   }),
 })
 
-export const { useGetProductsQuery, useGetCategoriesQuery, useGetProductByIdQuery } = productsApi
+export const { useGetProductsQuery, useGetCategoriesQuery, useGetProductByIdQuery, useGetInventorySummaryQuery } =
+  productsApi

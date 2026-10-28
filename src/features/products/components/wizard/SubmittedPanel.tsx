@@ -28,7 +28,7 @@ export function SubmittedPanel({ product, onCreateAnother }: Readonly<SubmittedP
         </Button>
         <Link
           href="/products"
-          className="inline-flex h-10 items-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
+          className="inline-flex h-10 items-center rounded-lg bg-brand-700 px-4 text-sm font-medium text-white shadow-sm hover:bg-brand-800"
         >
           Back to products
         </Link>

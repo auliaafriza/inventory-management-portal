@@ -1,5 +1,6 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit"
 import { productsApi } from "@/features/products/services/productsApi"
+import activityReducer from "@/features/products/store/activitySlice"
 import { draftListener } from "@/features/products/store/draftListener"
 import filtersReducer from "@/features/products/store/filtersSlice"
 import optimisticReducer from "@/features/products/store/optimisticSlice"
@@ -8,6 +9,7 @@ import wizardReducer from "@/features/products/store/wizardSlice"
 
 const rootReducer = combineReducers({
   [productsApi.reducerPath]: productsApi.reducer,
+  activity: activityReducer,
   filters: filtersReducer,
   optimistic: optimisticReducer,
   toasts: toastReducer,

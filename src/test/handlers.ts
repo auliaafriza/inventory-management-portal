@@ -22,7 +22,7 @@ export const handlers = [
     const url = new URL(request.url)
     const skip = Number(url.searchParams.get("skip") ?? 0)
     const limit = Number(url.searchParams.get("limit") ?? 30)
-    return HttpResponse.json(toResponse(PRODUCTS, skip, limit))
+    return HttpResponse.json(toResponse(PRODUCTS, skip, limit === 0 ? PRODUCTS.length : limit))
   }),
   http.post(`${BASE}/products/add`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>

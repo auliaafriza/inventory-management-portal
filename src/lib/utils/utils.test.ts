@@ -1,7 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { cn } from "./cn"
 import { DEFAULT_FAILURE_RATE, getFailureRate, shouldSimulateFailure, wait } from "./failure"
-import { formatCurrency, formatDateTime, getDiscountedPrice, getStockStatus } from "./format"
+import {
+  formatCurrency,
+  formatDateTime,
+  formatNumber,
+  formatRelativeTime,
+  formatWholeCurrency,
+  getDiscountedPrice,
+  getStockStatus,
+} from "./format"
 import { getPageItems, getTotalPages } from "./pagination"
 import { readStorage, removeStorage, writeStorage } from "./storage"
 
@@ -38,6 +46,28 @@ describe("format", () => {
   it("formats valid dates and ignores invalid ones", () => {
     expect(formatDateTime("2026-10-28T01:00:00.000Z")).toMatch(/2026/)
     expect(formatDateTime("not a date")).toBe("")
+  })
+})
+
+describe("relative time and number formats", () => {
+  const now = new Date("2026-10-28T12:00:00.000Z")
+
+  it.each([
+    ["2026-10-28T11:59:40.000Z", "Just now"],
+    ["2026-10-28T11:55:00.000Z", "5 min ago"],
+    ["2026-10-28T11:00:00.000Z", "1 hour ago"],
+    ["2026-10-28T07:00:00.000Z", "5 hours ago"],
+    ["2026-10-27T12:00:00.000Z", "1 day ago"],
+    ["2026-10-20T12:00:00.000Z", "8 days ago"],
+    ["2026-10-29T12:00:00.000Z", "Just now"],
+    ["nope", ""],
+  ])("formats %s as %s", (iso, expected) => {
+    expect(formatRelativeTime(iso, now)).toBe(expected)
+  })
+
+  it("formats numbers and whole-dollar values", () => {
+    expect(formatNumber(24560)).toBe("24,560")
+    expect(formatWholeCurrency(125430.4)).toBe("$125,430")
   })
 })
 

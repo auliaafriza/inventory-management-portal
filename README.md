@@ -1,4 +1,4 @@
-# Stockroom: Product & Inventory Management Portal
+# StockHub: Product & Inventory Management Portal
 
 A responsive inventory portal built with Next.js (App Router), React 19 and TypeScript in strict mode. It reads and
 writes products through the public [DummyJSON](https://dummyjson.com) API and includes a searchable, filterable product
@@ -39,12 +39,21 @@ Scripts: `npm run build`, `npm run lint`, `npm run type:check`, `npm test`, `npm
 
 ## Features
 
+### App shell and dashboard
+
+- Dark sidebar with the three feature areas (Inventory Directory, Product Wizard, Test Suite), a top bar with global
+  search (press Cmd/Ctrl + K) and a mobile navigation drawer.
+- `/products` opens with summary cards, a stock-by-category chart, a stock status donut, low stock products and a recent
+  activity feed. All figures are computed from the API data and update instantly when a product is edited or deleted.
+- `/testing` documents the automated test suites and how to run them.
+
 ### Inventory directory (`/products`)
 
 - Server-driven pagination (10 per page), debounced search, category filter populated from the API, and sorting.
 - Search, category, sort and page are mirrored in the URL (`/products?search=phone&category=smartphones&sort=price_desc&page=2`).
   Reloading or sharing the link restores the exact view, and the browser back and forward buttons work.
-- Table and card layouts, skeleton loading, empty and error states, and a slide-out filter drawer on small screens.
+- Table and card layouts, CSV export of the current page, skeleton loading, empty and error states, and a slide-out
+  filter drawer on small screens.
 - Delete and edit update the list immediately. About 20% of these requests fail on purpose; the change is rolled back
   and an error toast offers a Retry action.
 - A product detail page at `/products/[id]`.
@@ -64,14 +73,14 @@ src/
   app/                    Routing shells only (layouts, pages, error boundaries)
   api/                    Base query shared by RTK Query endpoints
   components/ui/          Tailwind primitives: Button, fields, Modal, Drawer, Toaster, Pagination, Skeleton
-  components/layout/      App header
+  components/layout/      App shell: sidebar, top bar, mobile navigation
   features/products/
     pages/                Page components rendered by app/
     components/           Table, cards, filters, edit dialog, wizard steps
     hooks/                URL and Redux synchronisation
     schemas/              Yup schemas
     services/             RTK Query endpoints and mutations
-    store/                Slices (filters, optimistic operations, toasts, wizard draft)
+    store/                Slices (filters, optimistic operations, toasts, activity, wizard draft)
     utils/                URL parsing, request building, payload mapping
   hooks/, lib/, store/    Shared hooks, helpers, store setup
   test/                   MSW handlers, fixtures, render helpers

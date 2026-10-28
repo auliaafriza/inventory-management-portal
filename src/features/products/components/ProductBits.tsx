@@ -4,25 +4,29 @@ import { iconButtonClass } from "@/components/ui/Button"
 import { PencilIcon, TrashIcon } from "@/components/ui/icons"
 import type { Product } from "../types"
 
+const STATUS_STYLES = {
+  out: { label: "Out of Stock", className: "bg-rose-50 text-rose-700" },
+  low: { label: "Low Stock", className: "bg-amber-50 text-amber-700" },
+  in: { label: "In Stock", className: "bg-emerald-50 text-emerald-700" },
+}
+
 export function StockBadge({ stock }: Readonly<{ stock: number }>) {
-  const status = getStockStatus(stock)
-  const styles = {
-    out: "bg-red-50 text-red-700 ring-red-600/20",
-    low: "bg-amber-50 text-amber-700 ring-amber-600/20",
-    in: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
-  }
-  const labels = { out: "Out of stock", low: `Low · ${stock}`, in: `${stock} in stock` }
+  const { label, className } = STATUS_STYLES[getStockStatus(stock)]
 
   return (
     <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset",
-        styles[status],
-      )}
+      className={cn("inline-flex items-center whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium", className)}
     >
-      {labels[status]}
+      {label}
     </span>
   )
+}
+
+export function StockCount({ stock }: Readonly<{ stock: number }>) {
+  const status = getStockStatus(stock)
+  const color = { out: "text-rose-600", low: "text-amber-600", in: "text-emerald-600" }[status]
+
+  return <span className={cn("font-medium tabular-nums", color)}>{stock}</span>
 }
 
 export function PriceTag({ price, discountPercentage }: Readonly<{ price: number; discountPercentage: number }>) {

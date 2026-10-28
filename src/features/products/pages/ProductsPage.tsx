@@ -2,13 +2,16 @@
 
 import { useCallback, useState } from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/Button"
+import { Button, primaryLinkClass } from "@/components/ui/Button"
 import { Pagination } from "@/components/ui/Pagination"
-import { FilterIcon, PlusIcon } from "@/components/ui/icons"
+import { DownloadIcon, FilterIcon, PlusIcon } from "@/components/ui/icons"
 import { getTotalPages } from "@/lib/utils/pagination"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { FilterControls } from "../components/FilterControls"
 import { FilterDrawer } from "../components/FilterDrawer"
+import { InlineFilters } from "../components/InlineFilters"
+import { CategoryStockCard, StockStatusCard } from "../components/InsightCards"
+import { ActivityPanel, LowStockPanel } from "../components/SidePanels"
+import { StatCards } from "../components/StatCards"
 import { ProductEditDialog } from "../components/ProductEditDialog"
 import { ProductCards, ProductTable } from "../components/ProductTable"
 import { EmptyState, ErrorState } from "../components/ProductsStates"
@@ -16,12 +19,14 @@ import { ProductsSkeleton } from "../components/ProductsSkeleton"
 import { SearchInput } from "../components/SearchInput"
 import { ViewToggle } from "../components/ViewToggle"
 import { PAGE_SIZE } from "../constants"
+import { useInventorySummary } from "../hooks/useInventorySummary"
 import { useProductFilters } from "../hooks/useProductFilters"
 import { useDeleteProductMutation, useUpdateProductMutation } from "../services/productMutations"
 import { useGetCategoriesQuery, useGetProductsQuery } from "../services/productsApi"
 import { viewChanged } from "../store/filtersSlice"
 import { selectOperations } from "../store/optimisticSlice"
 import type { Product, ProductCategory, ProductPatch } from "../types"
+import { buildProductsCsv, downloadCsv } from "../utils/exportCsv"
 import { hasActiveFilters } from "../utils/filtersUrl"
 
 const NO_CATEGORIES: ProductCategory[] = []
@@ -31,6 +36,8 @@ export function ProductsPage() {
   const { filters, ready, setSearch, setCategory, setSort, setPage, reset } = useProductFilters()
   const view = useAppSelector((state) => state.filters.view)
   const operations = useAppSelector(selectOperations)
+  const activity = useAppSelector((state) => state.activity.items)
+  const summary = useInventorySummary()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [editing, setEditing] = useState<Product | null>(null)
 
@@ -113,54 +120,84 @@ export function ProductsPage() {
     )
   }
 
+  const handleExport = () => {
+    if (currentData) downloadCsv(`products-page-${filters.page}.csv`, buildProductsCsv(currentData.products))
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Products</h1>
-          <p className="mt-1 text-sm text-slate-500" aria-live="polite">
-            {currentData && total > 0 ? `Showing ${from}–${to} of ${total} products` : "Manage your inventory"}
-          </p>
-        </div>
-        <Link
-          href="/products/new"
-          className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand-600 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700"
-        >
-          <PlusIcon className="size-4" />
-          New product
-        </Link>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+          Product &amp; Inventory Management Portal
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Manage your products, track inventory, and keep your business running smoothly.
+        </p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="min-w-0 flex-1">
-          <SearchInput value={filters.search} onChange={setSearch} />
-        </div>
-        <Button variant="secondary" className="lg:hidden" onClick={() => setDrawerOpen(true)}>
-          <FilterIcon className="size-4" />
-          Filters
-          {activeFilterCount > 0 ? (
-            <span className="rounded-full bg-brand-600 px-1.5 text-xs text-white">{activeFilterCount}</span>
-          ) : null}
-        </Button>
-        <ViewToggle view={view} onChange={(next) => dispatch(viewChanged(next))} />
+      <StatCards stats={summary.stats} loading={summary.isLoading} />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <CategoryStockCard stats={summary.stats} loading={summary.isLoading} className="lg:col-span-2" />
+        <StockStatusCard stats={summary.stats} loading={summary.isLoading} />
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
-        <aside aria-label="Filters" className="hidden lg:block">
-          <div className="sticky top-24 space-y-5 rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <FilterControls
+      <div className="grid items-start gap-6 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <section aria-label="Product list" className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-5 pb-4">
+            <div>
+              <h2 className="text-base font-semibold text-slate-900">Product List</h2>
+              <p className="text-sm text-slate-500" aria-live="polite">
+                {currentData && total > 0 ? `Showing ${from}–${to} of ${total} products` : "Browse and manage products"}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" className="lg:hidden" onClick={() => setDrawerOpen(true)}>
+                <FilterIcon className="size-4" />
+                Filters
+                {activeFilterCount > 0 ? (
+                  <span className="rounded-full bg-brand-700 px-1.5 text-xs text-white">{activeFilterCount}</span>
+                ) : null}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={handleExport}
+                disabled={!currentData || currentData.products.length === 0}
+              >
+                <DownloadIcon className="size-4" />
+                Export
+              </Button>
+              <Link href="/products/new" className={primaryLinkClass}>
+                <PlusIcon className="size-4" />
+                Add Product
+              </Link>
+            </div>
+          </div>
+
+          <div role="group" aria-label="Product filters" className="flex flex-wrap items-center gap-3 px-5 pb-4">
+            <div className="min-w-[14rem] flex-1">
+              <SearchInput value={filters.search} onChange={setSearch} />
+            </div>
+            <InlineFilters
+              className="hidden lg:flex"
               filters={filters}
               categories={categories}
               categoriesLoading={categoriesLoading}
               onCategoryChange={setCategory}
               onSortChange={setSort}
             />
-            <Button variant="ghost" size="sm" className="w-full" onClick={reset} disabled={!isFiltered}>
-              Reset filters
-            </Button>
+            <ViewToggle view={view} onChange={(next) => dispatch(viewChanged(next))} />
           </div>
+
+          <section aria-label="Product results" className="px-5 pb-5">
+            {renderResults()}
+          </section>
+        </section>
+
+        <aside aria-label="Insights" className="grid gap-6 md:grid-cols-2 2xl:grid-cols-1">
+          <LowStockPanel items={summary.lowStockItems} loading={summary.isLoading} />
+          <ActivityPanel items={activity} />
         </aside>
-        <section aria-label="Product results">{renderResults()}</section>
       </div>
 
       <FilterDrawer

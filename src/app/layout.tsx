@@ -4,7 +4,7 @@ import { StoreProvider } from "@/providers/StoreProvider"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: { default: "Stockroom", template: "%s · Stockroom" },
+  title: { default: "StockHub", template: "%s · StockHub" },
   description: "Product and inventory management portal.",
 }
 

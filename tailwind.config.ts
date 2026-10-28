@@ -6,7 +6,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: colors.indigo,
+        brand: colors.blue,
+        navy: {
+          700: "#1a2c55",
+          800: "#122246",
+          900: "#0c1a3a",
+          950: "#081229",
+        },
       },
       keyframes: {
         "toast-in": {

@@ -11,7 +11,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-brand-600 text-white shadow-sm hover:bg-brand-700 focus-visible:outline-brand-600",
+  primary: "bg-brand-700 text-white shadow-sm hover:bg-brand-800 focus-visible:outline-brand-700",
   secondary:
     "bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus-visible:outline-brand-600",
   danger: "bg-red-600 text-white shadow-sm hover:bg-red-700 focus-visible:outline-red-600",
@@ -52,3 +52,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 
 export const iconButtonClass =
   "inline-flex size-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-40"
+
+export const primaryLinkClass =
+  "inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700"

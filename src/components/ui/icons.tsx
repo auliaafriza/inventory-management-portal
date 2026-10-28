@@ -106,3 +106,71 @@ export const AlertIcon = (props: IconProps) => (
     <path d="M12 10v4M12 17.5v.01" />
   </Icon>
 )
+
+export const PlusSquareIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <rect x="3.5" y="3.5" width="17" height="17" rx="3" />
+    <path d="M12 8v8M8 12h8" />
+  </Icon>
+)
+
+export const FlaskIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M9 3h6M10 3v6L4.5 18.2A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.8L14 9V3" />
+    <path d="M7.5 14h9" />
+  </Icon>
+)
+
+export const BellIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16Z" />
+    <path d="M10 21h4" />
+  </Icon>
+)
+
+export const MenuIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M4 6h16M4 12h16M4 18h16" />
+  </Icon>
+)
+
+export const DownloadIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14" />
+  </Icon>
+)
+
+export const ChevronDownIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="m6 9 6 6 6-6" />
+  </Icon>
+)
+
+export const LayersIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+    <path d="m3 13 9 5 9-5" />
+  </Icon>
+)
+
+export const CartIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M3 4h2l2.2 11h10.6L20 7H6.2" />
+    <circle cx="9" cy="19.5" r="1.3" />
+    <circle cx="17" cy="19.5" r="1.3" />
+  </Icon>
+)
+
+export const ReceiptIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z" />
+    <path d="M9 8h6M9 12h6" />
+  </Icon>
+)
+
+export const InfoIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v5M12 8v.01" />
+  </Icon>
+)
