@@ -20,9 +20,9 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
         <SidebarContent />
       </aside>
       <MobileSidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <div className="lg:pl-64">
+      <div className="min-w-0 lg:pl-64">
         <TopBar onOpenMenu={() => setMenuOpen(true)} />
-        <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main className="mx-auto min-w-0 max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">{children}</main>
       </div>
     </div>
   )

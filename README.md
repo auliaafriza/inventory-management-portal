@@ -7,6 +7,42 @@ directory and a multi-step product creation wizard.
 - Live demo: _add the Vercel URL after deploying_
 - Repository: _add the public GitHub URL_
 
+## Preview
+
+![StockHub walkthrough: search, filters, view toggle, add product wizard, preview and list refetch](docs/demo.gif)
+
+| Dashboard and inventory table                   | Search and category filter (URL synced)                         |
+| ----------------------------------------------- | --------------------------------------------------------------- |
+| ![Dashboard](docs/screenshots/01-dashboard.png) | ![Search and filter](docs/screenshots/02-search-filter-url.png) |
+
+| Card view                                       | Empty state                                         |
+| ----------------------------------------------- | --------------------------------------------------- |
+| ![Card view](docs/screenshots/03-card-view.png) | ![Empty state](docs/screenshots/04-empty-state.png) |
+
+| Optimistic delete in flight                                              | Rollback with Retry toast                                            |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| ![Optimistic delete](docs/screenshots/04b-optimistic-delete-pending.png) | ![Rollback and retry](docs/screenshots/04c-rollback-retry-toast.png) |
+
+| Wizard validation                                               | Pricing and SKU variations                                       |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| ![Wizard validation](docs/screenshots/05-wizard-validation.png) | ![Variations](docs/screenshots/06-wizard-pricing-variations.png) |
+
+| Conditional shipping fields                                      | Review with product preview                              |
+| ---------------------------------------------------------------- | -------------------------------------------------------- |
+| ![Shipping](docs/screenshots/07-wizard-shipping-conditional.png) | ![Review](docs/screenshots/08-wizard-review-preview.png) |
+
+| Product created                                    | List refetching after create                           |
+| -------------------------------------------------- | ------------------------------------------------------ |
+| ![Created](docs/screenshots/09-wizard-created.png) | ![Refetching](docs/screenshots/10-list-refetching.png) |
+
+| New product in the list                                  | Resume saved draft prompt                                    |
+| -------------------------------------------------------- | ------------------------------------------------------------ |
+| ![New product](docs/screenshots/11-list-new-product.png) | ![Draft prompt](docs/screenshots/12-draft-resume-prompt.png) |
+
+| Test StockHub page                                      | Mobile list and filter drawer                                                                                  |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| ![Test StockHub](docs/screenshots/13-test-stockhub.png) | ![Mobile](docs/screenshots/14-mobile-list.png) ![Mobile filters](docs/screenshots/15-mobile-filter-drawer.png) |
+
 ## Stack
 
 | Area       | Choice                                                                      |
@@ -20,7 +56,9 @@ directory and a multi-step product creation wizard.
 | Testing    | Vitest, React Testing Library, MSW                                          |
 | Deployment | Vercel                                                                      |
 
-## Getting started
+## Local setup
+
+Requirements: Node.js 20 or newer (verified on Node 22 and 25) and npm.
 
 ```bash
 npm install
@@ -28,14 +66,29 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open http://localhost:3000. Environment variables:
+Open http://localhost:3000. The app redirects to `/products`.
+
+| Command                 | What it does                                              |
+| ----------------------- | --------------------------------------------------------- |
+| `npm install`           | Installs dependencies (`.npmrc` sets `legacy-peer-deps`)  |
+| `npm run dev`           | Starts the development server on port 3000                |
+| `npm run test`          | Runs the whole ViTest StockHub once                          |
+| `npm run test:coverage` | Runs the suite with coverage and enforces the 80% minimum |
+| `npm run build`         | Creates the production build                              |
+| `npm run start`         | Serves the production build                               |
+| `npm run lint`          | Runs ESLint                                               |
+| `npm run type:check`    | Runs the TypeScript compiler without emitting files       |
+
+`yarn` works the same way (`yarn install`, `yarn dev`, `yarn test`, `yarn build`).
+
+Environment variables:
 
 | Variable                   | Default                 | Purpose                                                  |
 | -------------------------- | ----------------------- | -------------------------------------------------------- |
 | `NEXT_PUBLIC_API_BASE_URL` | `https://dummyjson.com` | API origin                                               |
 | `NEXT_PUBLIC_FAILURE_RATE` | `0.2`                   | Chance (0 to 1) that a delete or update fails on purpose |
 
-Scripts: `npm run build`, `npm run lint`, `npm run type:check`, `npm test`, `npm run test:coverage`.
+Set `NEXT_PUBLIC_FAILURE_RATE=1` to watch every delete or update roll back, or `0` to disable the simulated failures.
 
 ## Features
 
@@ -108,7 +161,8 @@ npm run test:coverage
 3. Optionally set `NEXT_PUBLIC_API_BASE_URL` and `NEXT_PUBLIC_FAILURE_RATE`.
 
 DummyJSON does not persist writes. Because refetching would bring deleted items back, committed deletions and edits
-are kept in Redux and re-applied to every list the app fetches during the session, instead of invalidating the cache.
+are kept in Redux and re-applied to every list the app fetches during the session. The cache is invalidated only after a
+product is created, so the list and summary refetch and include it.
 
 ## Technical rationale
 
@@ -133,11 +187,12 @@ did not emit that value itself, so the user's typing is never overwritten.
 - **RTK Query cache** owns server data: product pages, categories and single products. It handles caching,
   deduplication and request status, so none of that is hand written.
 - **Redux slices** own client state that has to outlive a component or be shared: the committed filters (kept in sync
-  with the URL), the view mode, toast notifications, per-product optimistic operation status, and the wizard draft.
+  with the URL), the view mode, toast notifications, per-product optimistic operation status, products created in the wizard (the demo API does not persist writes), and the
+  wizard draft.
   Everything in them is serializable, which is why toasts carry a retry descriptor and not a callback.
 - **React Hook Form** owns the values while the user is typing. Inputs are uncontrolled, so a keystroke does not
   re-render the wizard or write to the store. Only a debounced snapshot is copied into Redux for draft persistence, and
-  Yup is the single source of validation rules.
+  Yup is the single source of validation rules. The optional product image lives in the form as a downscaled data URL.
 
 Keeping these apart avoids storing the same data twice: the hand-written slices never hold API responses, the form never holds committed
 filters, and the URL is treated as an input that is parsed into Redux and a mirror of it, not a third copy to reconcile
@@ -165,6 +220,9 @@ Delete and update are RTK Query mutations that use `onQueryStarted`:
 4. On failure, call `undo()` on every patch, which restores the exact previous cache state, mark the operation as
    `failed`, and show an error toast carrying a serializable retry descriptor. Retry simply dispatches the same mutation
    again.
+
+A created product is committed to the `optimistic` slice only after the POST succeeds, and then the `Inventory` cache tag
+is invalidated so the list and dashboard summary refetch. Create failures never touch the cache.
 
 The 20% failure is injected inside the mutation, after a short artificial delay, so the optimistic state is visible
 before the rollback. The rate comes from `NEXT_PUBLIC_FAILURE_RATE`, and the random source is injectable, which keeps

@@ -42,7 +42,7 @@ export function SidebarContent({ onNavigate }: Readonly<{ onNavigate?: () => voi
       <div className="mt-auto rounded-xl bg-navy-800 p-4">
         <div className="flex items-center gap-2 text-sm font-medium text-white">
           <InfoIcon className="size-4" />
-          Porudct & Inventory Management Portal
+          Product & Inventory Management Portal
         </div>
         <p className="mt-2 text-xs leading-relaxed text-slate-400">
           This web application is built using Next.js, React, Redux Toolkit, TypeScript, Tailwind CSS, and shadcn/ui. It is a simple product and inventory management portal using dummyjson.

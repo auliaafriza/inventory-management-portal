@@ -73,7 +73,7 @@ export function VariationsField() {
 
   return (
     <section aria-labelledby="variations-heading" className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 id="variations-heading" className="text-base font-semibold text-slate-900">
             SKU variations
@@ -83,6 +83,7 @@ export function VariationsField() {
         <Button
           variant="secondary"
           size="sm"
+          className="shrink-0 whitespace-nowrap"
           disabled={fields.length >= MAX_VARIATIONS}
           onClick={() => append(EMPTY_VARIATION, { shouldFocus: true })}
         >

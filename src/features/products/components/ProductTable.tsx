@@ -27,7 +27,8 @@ function CategoryChip({ category }: Readonly<{ category: string }>) {
   )
 }
 
-const headClass = "px-4 py-3 font-medium"
+const headClass = "px-3 py-3 font-medium sm:px-4"
+const cellClass = "px-3 py-3 sm:px-4"
 
 export function ProductTable({ products, operations, onEdit, onDelete }: Readonly<ProductListProps>) {
   return (
@@ -45,7 +46,7 @@ export function ProductTable({ products, operations, onEdit, onDelete }: Readonl
               <th scope="col" className={cn(headClass, "hidden md:table-cell")}>
                 Category
               </th>
-              <th scope="col" className={headClass}>
+              <th scope="col" className={cn(headClass, "hidden sm:table-cell")}>
                 Stock
               </th>
               <th scope="col" className={headClass}>
@@ -71,7 +72,7 @@ export function ProductTable({ products, operations, onEdit, onDelete }: Readonl
                     operation?.status === "failed" && "bg-red-50/60",
                   )}
                 >
-                  <td className="px-4 py-3">
+                  <td className={cellClass}>
                     <div className="flex items-center gap-3">
                       <Image
                         src={product.thumbnail}
@@ -84,13 +85,17 @@ export function ProductTable({ products, operations, onEdit, onDelete }: Readonl
                         <div className="flex items-center">
                           <Link
                             href={`/products/${product.id}`}
-                            className="block max-w-[14rem] truncate font-medium text-slate-900 hover:text-brand-700"
+                            className="block max-w-[9.5rem] truncate font-medium text-slate-900 hover:text-brand-700 sm:max-w-[14rem]"
                           >
                             {product.title}
                           </Link>
                           <NewBadge id={product.id} />
                         </div>
                         <p className="truncate text-xs text-slate-500">{product.brand ?? "No brand"}</p>
+                        <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-slate-500 sm:hidden">
+                          <StockBadge stock={product.stock} />
+                          <span className="whitespace-nowrap">{product.stock} units</span>
+                        </p>
                         <RowStatus operation={operation} />
                       </div>
                     </div>
@@ -99,16 +104,16 @@ export function ProductTable({ products, operations, onEdit, onDelete }: Readonl
                   <td className="hidden px-4 py-3 md:table-cell">
                     <CategoryChip category={product.category} />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="hidden px-4 py-3 sm:table-cell">
                     <StockCount stock={product.stock} />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className={cellClass}>
                     <PriceTag price={product.price} discountPercentage={product.discountPercentage} />
                   </td>
                   <td className="hidden px-4 py-3 sm:table-cell">
                     <StockBadge stock={product.stock} />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className={cellClass}>
                     <div className="flex justify-end">
                       <ProductActions
                         product={product}

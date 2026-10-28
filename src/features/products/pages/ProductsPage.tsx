@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react"
 import Link from "next/link"
+import { cn } from "@/lib/utils/cn"
 import { Button, primaryLinkClass } from "@/components/ui/Button"
 import { Pagination } from "@/components/ui/Pagination"
 import { DownloadIcon, FilterIcon, PlusIcon } from "@/components/ui/icons"
@@ -137,14 +138,14 @@ export function ProductsPage() {
 
       <StatCards stats={summary.stats} loading={summary.isLoading} />
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <CategoryStockCard stats={summary.stats} loading={summary.isLoading} className="lg:col-span-2" />
         <StockStatusCard stats={summary.stats} loading={summary.isLoading} />
       </div>
 
-      <div className="grid items-start gap-6 2xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <section aria-label="Product list" className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-          <div className="flex flex-wrap items-center justify-between gap-3 p-5 pb-4">
+      <div className="grid grid-cols-1 items-start gap-6 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <section aria-label="Product list" className="min-w-0 rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+          <div className="flex flex-col gap-3 p-4 pb-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:p-5">
             <div>
               <h2 className="text-base font-semibold text-slate-900">Product List</h2>
               <p className="text-sm text-slate-500" aria-live="polite">
@@ -152,7 +153,7 @@ export function ProductsPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="secondary" className="lg:hidden" onClick={() => setDrawerOpen(true)}>
+              <Button variant="secondary" className="flex-1 sm:flex-none lg:hidden" onClick={() => setDrawerOpen(true)}>
                 <FilterIcon className="size-4" />
                 Filters
                 {activeFilterCount > 0 ? (
@@ -163,19 +164,24 @@ export function ProductsPage() {
                 variant="secondary"
                 onClick={handleExport}
                 disabled={!currentData || currentData.products.length === 0}
+                aria-label="Export"
               >
                 <DownloadIcon className="size-4" />
-                Export
+                <span className="hidden sm:inline">Export</span>
               </Button>
-              <Link href="/products/new" className={primaryLinkClass}>
+              <Link href="/products/new" className={cn(primaryLinkClass, "flex-1 whitespace-nowrap sm:flex-none")}>
                 <PlusIcon className="size-4" />
                 Add Product
               </Link>
             </div>
           </div>
 
-          <div role="group" aria-label="Product filters" className="flex flex-wrap items-center gap-3 px-5 pb-4">
-            <div className="min-w-[14rem] flex-1">
+          <div
+            role="group"
+            aria-label="Product filters"
+            className="flex flex-wrap items-center gap-3 px-4 pb-4 sm:px-5"
+          >
+            <div className="min-w-0 flex-1 basis-48">
               <SearchInput value={filters.search} onChange={setSearch} />
             </div>
             <InlineFilters
@@ -189,7 +195,7 @@ export function ProductsPage() {
             <ViewToggle view={view} onChange={(next) => dispatch(viewChanged(next))} />
           </div>
 
-          <section aria-label="Product results" className="px-5 pb-5">
+          <section aria-label="Product results" className="px-4 pb-5 sm:px-5">
             {renderResults()}
           </section>
         </section>
