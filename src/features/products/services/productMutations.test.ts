@@ -152,6 +152,7 @@ describe("createProduct", () => {
     const store = makeStore()
     const result = await store.dispatch(
       productMutations.endpoints.createProduct.initiate({
+        image: "",
         title: "Desk Lamp",
         brand: "Lumen",
         category: "lighting",

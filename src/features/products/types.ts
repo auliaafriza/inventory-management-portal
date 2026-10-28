@@ -74,6 +74,7 @@ export interface CreatedProduct {
 }
 
 export interface CreateProductPayload {
+  image: string
   title: string
   brand: string
   category: string

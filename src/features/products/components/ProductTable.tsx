@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils/cn"
 import type { OptimisticOperation } from "../store/optimisticSlice"
 import type { Product } from "../types"
 import { formatCategoryName } from "../utils/inventoryStats"
-import { PriceTag, ProductActions, StockBadge, StockCount } from "./ProductBits"
+import { NewBadge, PriceTag, ProductActions, StockBadge, StockCount } from "./ProductBits"
 
 interface ProductListProps {
   products: Product[]
@@ -81,12 +81,15 @@ export function ProductTable({ products, operations, onEdit, onDelete }: Readonl
                         className="size-10 shrink-0 rounded-lg bg-slate-100 object-cover"
                       />
                       <div className="min-w-0">
-                        <Link
-                          href={`/products/${product.id}`}
-                          className="block max-w-[14rem] truncate font-medium text-slate-900 hover:text-brand-700"
-                        >
-                          {product.title}
-                        </Link>
+                        <div className="flex items-center">
+                          <Link
+                            href={`/products/${product.id}`}
+                            className="block max-w-[14rem] truncate font-medium text-slate-900 hover:text-brand-700"
+                          >
+                            {product.title}
+                          </Link>
+                          <NewBadge id={product.id} />
+                        </div>
                         <p className="truncate text-xs text-slate-500">{product.brand ?? "No brand"}</p>
                         <RowStatus operation={operation} />
                       </div>
@@ -151,12 +154,15 @@ export function ProductCards({ products, operations, onEdit, onDelete }: Readonl
             <div className="flex flex-1 flex-col gap-3 p-4">
               <div className="min-w-0">
                 <CategoryChip category={product.category} />
-                <Link
-                  href={`/products/${product.id}`}
-                  className="mt-2 block truncate font-medium text-slate-900 hover:text-brand-700"
-                >
-                  {product.title}
-                </Link>
+                <div className="mt-2 flex items-center">
+                  <Link
+                    href={`/products/${product.id}`}
+                    className="block truncate font-medium text-slate-900 hover:text-brand-700"
+                  >
+                    {product.title}
+                  </Link>
+                  <NewBadge id={product.id} />
+                </div>
                 <RowStatus operation={operation} />
               </div>
               <div className="flex items-center justify-between">

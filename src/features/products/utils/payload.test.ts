@@ -3,6 +3,7 @@ import type { ProductWizardValues } from "../schemas/productSchemas"
 import { buildCreatePayload } from "./payload"
 
 const values: ProductWizardValues = {
+  image: "",
   title: "  Desk Lamp ",
   brand: " Lumen ",
   category: "home-decoration",
@@ -23,6 +24,7 @@ const values: ProductWizardValues = {
 describe("buildCreatePayload", () => {
   it("normalizes text, defaults the discount and nests dimensions", () => {
     expect(buildCreatePayload(values)).toEqual({
+      image: "",
       title: "Desk Lamp",
       brand: "Lumen",
       category: "home-decoration",

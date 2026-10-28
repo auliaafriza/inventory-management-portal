@@ -1,19 +1,24 @@
 "use client"
 
-import { useFormContext } from "react-hook-form"
+import { useFormContext, useWatch } from "react-hook-form"
 import { SelectField, TextareaField, TextField } from "@/components/ui/fields"
 import { useGetCategoriesQuery } from "../../services/productsApi"
+import { ImageField } from "./ImageField"
 import type { ProductWizardValues } from "../../schemas/productSchemas"
 
 export function BasicInfoStep() {
   const {
     register,
+    control,
+    setValue,
     formState: { errors },
   } = useFormContext<ProductWizardValues>()
+  const image = useWatch({ control, name: "image" }) ?? ""
   const { data: categories = [], isLoading, isError } = useGetCategoriesQuery()
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
+      <ImageField value={image} onChange={(value) => setValue("image", value, { shouldDirty: true })} />
       <TextField
         label="Product title"
         required

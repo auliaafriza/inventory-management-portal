@@ -3,6 +3,7 @@ import type { ProductWizardValues } from "../schemas/productSchemas"
 
 export function buildCreatePayload(values: ProductWizardValues): CreateProductPayload {
   return {
+    image: values.image ?? "",
     title: values.title.trim(),
     brand: values.brand.trim(),
     category: values.category,

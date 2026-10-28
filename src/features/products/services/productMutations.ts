@@ -5,7 +5,9 @@ import {
   operationCommitted,
   operationRolledBack,
   operationStarted,
+  productCreated,
   type OptimisticKind,
+  type OptimisticState,
 } from "../store/optimisticSlice"
 import { activityLogged } from "../store/activitySlice"
 import { toastAdded } from "../store/toastSlice"
@@ -18,9 +20,11 @@ import type {
   ProductsResponse,
 } from "../types"
 import type { InventoryItem } from "../utils/inventoryStats"
-import { productsApi } from "./productsApi"
+import { buildCreatedProduct, isCreatedId, nextCreatedId } from "../utils/createdProduct"
+import { INVENTORY_TAG, productsApi } from "./productsApi"
 
 const SIMULATED_ERROR: FetchBaseQueryError = { status: "FETCH_ERROR", error: "Simulated network failure" }
+const NOT_FOUND: FetchBaseQueryError = { status: 404, data: { message: "Product not found" } }
 const MIN_LATENCY_MS = 400
 const MAX_LATENCY_MS = 900
 
@@ -52,12 +56,32 @@ export const productMutations = productsApi.injectEndpoints({
 
     return {
       createProduct: builder.mutation<CreatedProduct, CreateProductPayload>({
-        query: (body) => ({ url: "/products/add", method: "POST", body }),
+        query: ({ image, ...body }) => ({
+          url: "/products/add",
+          method: "POST",
+          body: { ...body, hasImage: image !== "" },
+        }),
+        async onQueryStarted(payload, { dispatch, getState, queryFulfilled }) {
+          try {
+            await queryFulfilled
+          } catch {
+            return
+          }
+          const { optimistic } = (getState as () => unknown)() as { optimistic: OptimisticState }
+          dispatch(productCreated(buildCreatedProduct(payload, nextCreatedId(optimistic.created))))
+          dispatch(productsApi.util.invalidateTags([INVENTORY_TAG]))
+        },
       }),
       updateProduct: builder.mutation<Product, { id: number; title: string; patch: ProductPatch }>({
-        async queryFn({ id, patch }, _api, _extraOptions, fetchWithBQ) {
+        async queryFn({ id, patch }, api, _extraOptions, fetchWithBQ) {
           await wait(simulatedLatency())
           if (shouldSimulateFailure()) return { error: SIMULATED_ERROR }
+
+          if (isCreatedId(id)) {
+            const { optimistic } = api.getState() as { optimistic: OptimisticState }
+            const local = optimistic.created.find((product) => product.id === id)
+            return local ? { data: { ...local, ...patch } } : { error: NOT_FOUND }
+          }
 
           const result = await fetchWithBQ({ url: `/products/${id}`, method: "PUT", body: patch })
           return result.error ? { error: result.error } : { data: result.data as Product }
@@ -98,9 +122,17 @@ export const productMutations = productsApi.injectEndpoints({
         },
       }),
       deleteProduct: builder.mutation<DeletedProduct, { id: number; title: string }>({
-        async queryFn({ id }, _api, _extraOptions, fetchWithBQ) {
+        async queryFn({ id }, api, _extraOptions, fetchWithBQ) {
           await wait(simulatedLatency())
           if (shouldSimulateFailure()) return { error: SIMULATED_ERROR }
+
+          if (isCreatedId(id)) {
+            const { optimistic } = api.getState() as { optimistic: OptimisticState }
+            const local = optimistic.created.find((product) => product.id === id)
+            return local
+              ? { data: { ...local, isDeleted: true, deletedOn: new Date().toISOString() } }
+              : { error: NOT_FOUND }
+          }
 
           const result = await fetchWithBQ({ url: `/products/${id}`, method: "DELETE" })
           return result.error ? { error: result.error } : { data: result.data as DeletedProduct }

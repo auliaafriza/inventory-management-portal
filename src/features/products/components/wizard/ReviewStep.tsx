@@ -3,9 +3,11 @@
 import type { ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
 import { Button } from "@/components/ui/Button"
+import { CheckboxField } from "@/components/ui/fields"
 import { formatCurrency } from "@/lib/utils/format"
 import { productWizardSchema, type ProductWizardValues } from "../../schemas/productSchemas"
 import { useGetCategoriesQuery } from "../../services/productsApi"
+import { ProductPreview } from "./ProductPreview"
 
 interface ReviewSectionProps {
   title: string
@@ -41,7 +43,13 @@ const money = (value: number | undefined) =>
 const plain = (value: number | undefined, unit = "") =>
   typeof value === "number" && Number.isFinite(value) ? `${value}${unit}` : "—"
 
-export function ReviewStep({ onEdit }: Readonly<{ onEdit: (step: number) => void }>) {
+interface ReviewStepProps {
+  onEdit: (step: number) => void
+  confirmed: boolean
+  onConfirmChange: (confirmed: boolean) => void
+}
+
+export function ReviewStep({ onEdit, confirmed, onConfirmChange }: Readonly<ReviewStepProps>) {
   const { getValues } = useFormContext<ProductWizardValues>()
   const { data: categories = [] } = useGetCategoriesQuery()
   const values = productWizardSchema.cast(getValues(), { assert: false }) as ProductWizardValues
@@ -49,7 +57,20 @@ export function ReviewStep({ onEdit }: Readonly<{ onEdit: (step: number) => void
 
   return (
     <div className="space-y-4">
+      <ProductPreview
+        image={values.image ?? ""}
+        title={values.title}
+        brand={values.brand}
+        category={values.category}
+        description={values.description}
+        price={values.price}
+        discountPercentage={values.discountPercentage ?? 0}
+        stock={values.stock}
+        variationCount={values.variations.length}
+      />
+
       <ReviewSection title="Basic information" onEdit={() => onEdit(0)}>
+        <Row label="Image">{values.image ? "Uploaded" : "Placeholder"}</Row>
         <Row label="Title">{values.title || "—"}</Row>
         <Row label="Brand">{values.brand || "—"}</Row>
         <Row label="Category">{categoryName || "—"}</Row>
@@ -99,6 +120,15 @@ export function ReviewStep({ onEdit }: Readonly<{ onEdit: (step: number) => void
           </>
         ) : null}
       </ReviewSection>
+
+      <div className="rounded-xl bg-brand-50/60 p-4 ring-1 ring-brand-100">
+        <CheckboxField
+          label="I have reviewed the preview and the details are correct"
+          description="Nothing is created until you press Create product."
+          checked={confirmed}
+          onChange={(event) => onConfirmChange(event.target.checked)}
+        />
+      </div>
     </div>
   )
 }

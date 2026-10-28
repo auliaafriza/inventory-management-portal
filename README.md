@@ -64,6 +64,8 @@ Scripts: `npm run build`, `npm run lint`, `npm run type:check`, `npm test`, `npm
 - Yup rules include the `SKU-[A-Z]{3}-[0-9]{4}` format, duplicate SKU detection across the field array, a discount range
   of 0 to 99, and conditional `yup.when` rules for fragile items (disclaimer and notes become mandatory).
 - Progress is autosaved to Redux and `localStorage`. After a refresh the user is asked "Resume saved product draft?".
+- The review step shows a product preview and the product is only created after the reviewer ticks the confirmation checkbox and presses "Create product".
+- After creation the new product is stored locally (the demo API does not persist writes), the `Inventory` cache tag is invalidated, and the list and dashboard summary refetch with a simulated delay when the user returns to `/products`. New items carry a "New" badge.
 - Submission posts to `https://dummyjson.com/products/add`.
 
 ## Project structure

@@ -39,6 +39,7 @@ const discountField = numberField("Discount")
   .optional()
 
 export const basicInfoSchema = yup.object({
+  image: yup.string().default(""),
   title: titleField,
   brand: yup.string().trim().required("Brand is required"),
   category: yup.string().required("Select a category"),
@@ -111,7 +112,7 @@ export type VariationValues = yup.InferType<typeof variationSchema>
 export type WizardFieldName = keyof ProductWizardValues
 
 export const STEP_FIELDS: WizardFieldName[][] = [
-  ["title", "brand", "category", "description"],
+  ["image", "title", "brand", "category", "description"],
   ["price", "stock", "discountPercentage", "variations"],
   ["weight", "width", "height", "depth", "requiresFragileHandling", "hazardousDisclaimer", "shippingNotes"],
 ]

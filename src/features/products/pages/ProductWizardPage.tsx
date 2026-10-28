@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { FormProvider, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/Button"
@@ -32,6 +32,7 @@ import { buildCreatePayload } from "../utils/payload"
 const AUTOSAVE_DELAY_MS = 400
 
 const DEFAULT_VALUES: WizardDraftValues = {
+  image: "",
   title: "",
   brand: "",
   category: "",
@@ -47,6 +48,7 @@ export function ProductWizardPage() {
   const { status, step, savedDraft } = useAppSelector((state) => state.wizard)
   const [reached, setReached] = useState(0)
   const [created, setCreated] = useState<CreatedProduct | null>(null)
+  const [confirmed, setConfirmed] = useState(false)
   const [createProduct, { isLoading: isSubmitting }] = useCreateProductMutation()
 
   const form = useForm<ProductWizardValues>({
@@ -99,6 +101,7 @@ export function ProductWizardPage() {
 
   const goToStep = useCallback(
     (next: number) => {
+      setConfirmed(false)
       setReached((current) => Math.max(current, next))
       dispatch(stepChanged(next))
       window.scrollTo({ top: 0, behavior: "smooth" })
@@ -130,10 +133,11 @@ export function ProductWizardPage() {
     reset(DEFAULT_VALUES as ProductWizardValues)
     setReached(0)
     setCreated(null)
+    setConfirmed(false)
     dispatch(stepChanged(0))
   }
 
-  const submit = handleSubmit(
+  const submitValid = handleSubmit(
     async (values) => {
       try {
         const result = await createProduct(buildCreatePayload(values)).unwrap()
@@ -154,6 +158,15 @@ export function ProductWizardPage() {
 
   const isReview = step === REVIEW_STEP_INDEX
 
+  const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!isReview) {
+      void handleNext()
+      return
+    }
+    if (confirmed) void submitValid()
+  }
+
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       <div>
@@ -166,13 +179,13 @@ export function ProductWizardPage() {
       ) : (
         <FormProvider {...form}>
           <WizardStepper current={step} reached={reached} onSelect={goToStep} />
-          <form onSubmit={submit} noValidate className="space-y-6">
+          <form onSubmit={handleFormSubmit} noValidate className="space-y-6">
             <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
               <h2 className="mb-6 text-lg font-semibold text-slate-900">{WIZARD_STEPS[step]?.title}</h2>
               {step === 0 && <BasicInfoStep />}
               {step === 1 && <PricingStep />}
               {step === 2 && <ShippingStep />}
-              {isReview && <ReviewStep onEdit={goToStep} />}
+              {isReview && <ReviewStep onEdit={goToStep} confirmed={confirmed} onConfirmChange={setConfirmed} />}
             </div>
 
             <div className="flex items-center justify-between">
@@ -180,11 +193,13 @@ export function ProductWizardPage() {
                 Back
               </Button>
               {isReview ? (
-                <Button type="submit" loading={isSubmitting}>
+                <Button key="create" type="submit" loading={isSubmitting} disabled={!confirmed}>
                   Create product
                 </Button>
               ) : (
-                <Button onClick={() => void handleNext()}>Continue</Button>
+                <Button key="continue" onClick={() => void handleNext()}>
+                  Continue
+                </Button>
               )}
             </div>
           </form>

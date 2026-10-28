@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils/cn"
 import { iconButtonClass } from "@/components/ui/Button"
 import { PencilIcon, TrashIcon } from "@/components/ui/icons"
 import type { Product } from "../types"
+import { isCreatedId } from "../utils/createdProduct"
 
 const STATUS_STYLES = {
   out: { label: "Out of Stock", className: "bg-rose-50 text-rose-700" },
@@ -71,5 +72,15 @@ export function ProductActions({ product, disabled, onEdit, onDelete }: Readonly
         <TrashIcon className="size-4" />
       </button>
     </div>
+  )
+}
+
+export function NewBadge({ id }: Readonly<{ id: number }>) {
+  if (!isCreatedId(id)) return null
+
+  return (
+    <span className="ml-2 inline-flex rounded-md bg-brand-50 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-brand-700">
+      New
+    </span>
   )
 }

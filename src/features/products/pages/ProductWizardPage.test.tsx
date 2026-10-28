@@ -69,9 +69,14 @@ describe("ProductWizardPage", () => {
     await user.click(screen.getByRole("button", { name: "Continue" }))
 
     expect(await screen.findByRole("heading", { name: "Review", level: 2 })).toBeInTheDocument()
-    expect(screen.getByText("Desk Lamp")).toBeInTheDocument()
+    const preview = screen.getByRole("region", { name: "Product preview" })
+    expect(within(preview).getByText("Desk Lamp")).toBeInTheDocument()
     expect(screen.getByText("SKU-BLK-1001")).toBeInTheDocument()
 
+    expect(screen.getByRole("button", { name: "Create product" })).toBeDisabled()
+    expect(posted).toBeNull()
+
+    await user.click(screen.getByRole("checkbox", { name: /reviewed the preview/i }))
     await user.click(screen.getByRole("button", { name: "Create product" }))
 
     expect(await screen.findByText("Product created")).toBeInTheDocument()
@@ -211,10 +216,73 @@ describe("ProductWizardPage", () => {
       await user.type(await screen.findByLabelText(label), "2")
     }
     await user.click(screen.getByRole("button", { name: "Continue" }))
-    await user.click(await screen.findByRole("button", { name: "Create product" }))
+    await user.click(await screen.findByRole("checkbox", { name: /reviewed the preview/i }))
+    await user.click(screen.getByRole("button", { name: "Create product" }))
 
     await waitFor(() => expect(store.getState().toasts.items[0]).toMatchObject({ kind: "error" }))
     expect(screen.queryByText("Product created")).not.toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Create product" })).toBeInTheDocument()
+  })
+
+  it("lets the user upload a product image and shows it in the preview", async () => {
+    const user = userEvent.setup({ delay: null })
+    renderWithProviders(<ProductWizardPage />)
+
+    await user.upload(
+      await screen.findByLabelText("Product image"),
+      new File(["img"], "lamp.png", { type: "image/png" }),
+    )
+    expect(await screen.findByAltText("Selected product")).toBeInTheDocument()
+
+    await fillBasicInfo(user)
+    await user.click(screen.getByRole("button", { name: "Continue" }))
+    await user.type(await screen.findByLabelText(/base price/i), "10")
+    await user.type(screen.getByLabelText(/stock quantity/i), "1")
+    await user.click(screen.getByRole("button", { name: "Continue" }))
+    for (const label of [/weight/i, /width/i, /height/i, /depth/i]) {
+      await user.type(await screen.findByLabelText(label), "2")
+    }
+    await user.click(screen.getByRole("button", { name: "Continue" }))
+
+    const preview = await screen.findByRole("region", { name: "Product preview" })
+    expect(preview.querySelector("img")?.getAttribute("src")).toContain("data:image/png")
+  })
+
+  it("rejects unsupported image files", async () => {
+    const user = userEvent.setup({ delay: null, applyAccept: false })
+    renderWithProviders(<ProductWizardPage />)
+
+    await user.upload(
+      await screen.findByLabelText("Product image"),
+      new File(["x"], "a.pdf", { type: "application/pdf" }),
+    )
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/JPG, PNG or WebP/)
+  })
+
+  it("does not submit when Continue is double-clicked into the review step", async () => {
+    const user = userEvent.setup({ delay: null })
+    let submissions = 0
+    server.use(
+      http.post("https://dummyjson.com/products/add", () => {
+        submissions += 1
+        return HttpResponse.json({ id: 101 })
+      }),
+    )
+    renderWithProviders(<ProductWizardPage />)
+
+    await fillBasicInfo(user)
+    await user.click(screen.getByRole("button", { name: "Continue" }))
+    await user.type(await screen.findByLabelText(/base price/i), "10")
+    await user.type(screen.getByLabelText(/stock quantity/i), "1")
+    await user.click(screen.getByRole("button", { name: "Continue" }))
+    for (const label of [/weight/i, /width/i, /height/i, /depth/i]) {
+      await user.type(await screen.findByLabelText(label), "2")
+    }
+    await user.dblClick(screen.getByRole("button", { name: "Continue" }))
+
+    expect(await screen.findByRole("region", { name: "Product preview" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Create product" })).toBeDisabled()
+    expect(submissions).toBe(0)
   })
 })

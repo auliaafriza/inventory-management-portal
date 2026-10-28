@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import type { ProductPatch } from "../types"
+import type { Product, ProductPatch } from "../types"
 
 export type OptimisticKind = "delete" | "update"
 export type OptimisticStatus = "pending" | "failed"
@@ -13,12 +13,18 @@ export interface OptimisticState {
   operations: Record<number, OptimisticOperation>
   deletedIds: number[]
   edits: Record<number, ProductPatch>
+  created: Product[]
+  listStale: boolean
+  summaryStale: boolean
 }
 
 export const initialOptimisticState: OptimisticState = {
   operations: {},
   deletedIds: [],
   edits: {},
+  created: [],
+  listStale: false,
+  summaryStale: false,
 }
 
 const optimisticSlice = createSlice({
@@ -48,13 +54,32 @@ const optimisticSlice = createSlice({
       const { productId, kind } = action.payload
       state.operations[productId] = { kind, status: "failed" }
     },
+    productCreated(state, action: PayloadAction<Product>) {
+      state.created.unshift(action.payload)
+      state.listStale = true
+      state.summaryStale = true
+    },
+    listRefreshed(state) {
+      state.listStale = false
+    },
+    summaryRefreshed(state) {
+      state.summaryStale = false
+    },
     operationDismissed(state, action: PayloadAction<number>) {
       delete state.operations[action.payload]
     },
   },
 })
 
-export const { operationStarted, operationCommitted, operationRolledBack, operationDismissed } = optimisticSlice.actions
+export const {
+  operationStarted,
+  operationCommitted,
+  operationRolledBack,
+  operationDismissed,
+  productCreated,
+  listRefreshed,
+  summaryRefreshed,
+} = optimisticSlice.actions
 
 export const selectOperations = (state: { optimistic: OptimisticState }): Record<number, OptimisticOperation> =>
   state.optimistic.operations
